@@ -10,6 +10,7 @@
         #canvas-container { width: 100vw; height: 50vh; }
         .controls { margin-top: 20px; }
         button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        #info-box { max-width: 800px; margin: 20px auto; padding: 10px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -17,20 +18,26 @@
     <div id="canvas-container"></div>
     <div class="controls">
         <button onclick="startAnimation()">Iniciar Animación</button>
+        <button onclick="mutarrotacion()">Mutarrotación</button>
+        <button onclick="cicloFuranoso()">Formación del ciclo furanoso</button>
+        <button onclick="cicloPiranoso()">Formación del ciclo piranoso</button>
         <button onclick="resetAnimation()">Reiniciar</button>
     </div>
+    <div id="info-box">Haz clic en los botones para ver los cambios en la molécula.</div>
     <script>
         let scene, camera, renderer, glucose;
+        let falling = false;
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / (window.innerHeight / 2), 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
+            renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.6);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
             
             const geometry = new THREE.SphereGeometry(1, 32, 32);
             const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             glucose = new THREE.Mesh(geometry, material);
+            glucose.position.y = 5;
             scene.add(glucose);
             
             camera.position.z = 5;
@@ -38,14 +45,36 @@
         }
         function animate() {
             requestAnimationFrame(animate);
+            if (falling && glucose.position.y > 0) {
+                glucose.position.y -= 0.05;
+            }
             renderer.render(scene, camera);
         }
+        function updateInfo(text) {
+            document.getElementById("info-box").innerHTML = text;
+        }
         function startAnimation() {
-            glucose.position.y -= 0.05;
-            setTimeout(() => alert("Interacción con el agua: comienza la mutarrotación"), 2000);
+            falling = true;
+            updateInfo("La glucosa cae en el agua e interactúa con el medio, comenzando la mutarrotación.");
+            setTimeout(() => alert("Interacción con el agua: comienza la mutarrotación"), 3000);
+        }
+        function mutarrotacion() {
+            updateInfo("La molécula de glucosa cambia entre las formas alfa y beta mediante un proceso de equilibrio químico.");
+            glucose.material.color.set(0x0000ff);
+        }
+        function cicloFuranoso() {
+            updateInfo("La glucosa forma un anillo de cinco miembros (furanoso) mediante una reacción intramolecular.");
+            glucose.material.color.set(0x00ff00);
+        }
+        function cicloPiranoso() {
+            updateInfo("La glucosa forma un anillo de seis miembros (piranoso), la forma más estable en solución acuosa.");
+            glucose.material.color.set(0xffff00);
         }
         function resetAnimation() {
-            glucose.position.y = 0;
+            falling = false;
+            glucose.position.y = 5;
+            glucose.material.color.set(0xff0000);
+            updateInfo("Haz clic en los botones para ver los cambios en la molécula.");
         }
         init();
     </script>
